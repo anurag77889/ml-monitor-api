@@ -1,9 +1,11 @@
 import logging
-from sqlalchemy.orm import Session
+
 from sqlalchemy import func
-from app.models.prediction import Prediction
-from app.models.ml_model import MLModel
+from sqlalchemy.orm import Session
+
 from app.models.alert import Alert
+from app.models.ml_model import MLModel
+from app.models.prediction import Prediction
 
 logger = logging.getLogger(__name__)
 
@@ -164,7 +166,7 @@ def run_drift_detection(
         db.commit()
 
         logger.info(
-            f"[DriftDetector] prediction_id={prediction_id} "
+            f"[DriftDetector] pred_id={prediction_id} "
             f"drift_score={drift_score} threshold={model.drift_threshold}"
         )
 
@@ -173,5 +175,7 @@ def run_drift_detection(
             _create_drift_alert(db, model, prediction_id, drift_score)
 
     except Exception as e:
-        logger.error(f"[DriftDetector] Failed for prediction {prediction_id}: {e}")
+        logger.error(
+            f"[DriftDetector] Failed for prediction {prediction_id}: {e}"
+        )
         db.rollback()

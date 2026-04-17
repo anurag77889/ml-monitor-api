@@ -1,7 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
-from tests.conftest import TestingSessionLocal
+
 from app.models.alert import Alert
+from tests.conftest import TestingSessionLocal
 
 
 def _seed_alert(model_id: int, alert_type: str, severity: str) -> None:

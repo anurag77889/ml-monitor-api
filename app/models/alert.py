@@ -1,7 +1,21 @@
 from datetime import datetime
-from sqlalchemy import Integer, Float, String, DateTime, ForeignKey, Boolean, Text
+from typing import TYPE_CHECKING
+
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.database import Base
+
+if TYPE_CHECKING:
+    from .ml_model import MLModel
 
 
 class Alert(Base):
@@ -10,7 +24,9 @@ class Alert(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
 
     # e.g. "drift_detected", "low_confidence", "high_latency"
-    alert_type: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    alert_type: Mapped[str] = mapped_column(
+        String(100), nullable=False, index=True
+    )
 
     # Human-readable message
     message: Mapped[str] = mapped_column(Text, nullable=False)
@@ -35,4 +51,6 @@ class Alert(Base):
     )
 
     # Relationships
-    ml_model: Mapped["MLModel"] = relationship("MLModel", back_populates="alerts")
+    ml_model: Mapped["MLModel"] = relationship(
+        "MLModel", back_populates="alerts"
+    )

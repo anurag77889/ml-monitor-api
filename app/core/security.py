@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
 from typing import Optional
+
 import bcrypt
 from jose import JWTError, jwt
+
 from app.config import settings
 
 
@@ -21,17 +23,19 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def create_access_token(
     subject: str | int,
-    expires_delta: Optional[timedelta] = None
+    expires_delta: Optional[timedelta] = None,
 ) -> str:
     expire = datetime.utcnow() + (
-        expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expires_delta
+        or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     payload = {
         "sub": str(subject),
         "exp": expire,
         "iat": datetime.utcnow(),
     }
-    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return jwt.encode(payload, settings.SECRET_KEY,
+                      algorithm=settings.ALGORITHM)
 
 
 def decode_access_token(token: str) -> Optional[str]:
@@ -39,7 +43,7 @@ def decode_access_token(token: str) -> Optional[str]:
         payload = jwt.decode(
             token,
             settings.SECRET_KEY,
-            algorithms=[settings.ALGORITHM]
+            algorithms=[settings.ALGORITHM],
         )
         return payload.get("sub")
     except JWTError:

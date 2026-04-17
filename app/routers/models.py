@@ -1,23 +1,15 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
+
+from app.core.dependencies import get_current_user
 from app.database import get_db
 from app.models.user import User
-from app.core.dependencies import get_current_user
-from app.schemas.ml_model import (
-    MLModelCreate,
-    MLModelUpdate,
-    MLModelResponse,
-    MLModelListResponse,
-    MLModelSummary,
-)
-from app.services.model_service import (
-    create_model,
-    get_model_by_id,
-    get_models_by_owner,
-    update_model,
-    delete_model,
-    get_model_summary,
-)
+from app.schemas.ml_model import (MLModelCreate, MLModelListResponse,
+                                  MLModelResponse, MLModelSummary,
+                                  MLModelUpdate)
+from app.services.model_service import (create_model, delete_model,
+                                        get_model_by_id, get_model_summary,
+                                        get_models_by_owner, update_model)
 
 router = APIRouter(prefix="/models", tags=["ML Models"])
 
@@ -41,7 +33,10 @@ def list_models(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """List all models owned by the current user. Supports filtering & pagination."""
+    """
+    List all models owned by the current user.
+    Supports filtering & pagination.
+    """
     models, total = get_models_by_owner(
         db,
         owner_id=current_user.id,
@@ -50,7 +45,9 @@ def list_models(
         status=status,
         model_type=model_type,
     )
-    return MLModelListResponse(items=models, total=total, skip=skip, limit=limit)
+    return MLModelListResponse(
+        items=models, total=total, skip=skip, limit=limit
+    )
 
 
 @router.get("/{model_id}", response_model=MLModelResponse)
@@ -87,7 +84,8 @@ def delete_model_route(
 ):
     """
     Delete a model and all associated predictions and alerts.
-    Only the owner can delete. Returns 204 No Content on success.
+    Only the owner can delete.
+    Returns 204 No Content on success.
     """
     delete_model(db, model_id, current_user_id=current_user.id)
 

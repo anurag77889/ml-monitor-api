@@ -1,7 +1,13 @@
 from datetime import datetime
-from sqlalchemy import Integer, Float, String, DateTime, ForeignKey, JSON
+from typing import TYPE_CHECKING
+
+from sqlalchemy import JSON, DateTime, Float, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.database import Base
+
+if TYPE_CHECKING:
+    from .ml_model import MLModel
 
 
 class Prediction(Base):
@@ -37,4 +43,6 @@ class Prediction(Base):
     )
 
     # Relationships
-    ml_model: Mapped["MLModel"] = relationship("MLModel", back_populates="predictions")
+    ml_model: Mapped["MLModel"] = relationship(
+        "MLModel", back_populates="predictions"
+    )

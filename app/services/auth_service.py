@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
+
+from app.core.exceptions import CredentialsException, DuplicateException
+from app.core.security import hash_password, verify_password
 from app.models.user import User
 from app.schemas.user import UserCreate
-from app.core.security import hash_password, verify_password
-from app.core.exceptions import DuplicateException, CredentialsException
 
 
 def get_user_by_email(db: Session, email: str) -> User | None:

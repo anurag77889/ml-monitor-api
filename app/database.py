@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
-from app.config import settings
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
+from app.config import settings
 
 # For SQLite, check_same_thread=False is required
 # because FastAPI handles requests in threads

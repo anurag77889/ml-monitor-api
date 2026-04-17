@@ -18,4 +18,3 @@ class Settings(BaseSettings):
 
 # Single instance imported across the app
 settings = Settings()
-

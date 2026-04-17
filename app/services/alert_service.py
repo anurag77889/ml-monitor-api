@@ -1,16 +1,19 @@
 import logging
 from datetime import datetime
-from sqlalchemy.orm import Session
+
 from sqlalchemy import func
+from sqlalchemy.orm import Session
+
+from app.core.exceptions import ForbiddenException, NotFoundException
 from app.models.alert import Alert
 from app.models.ml_model import MLModel
-from app.schemas.alert import AlertCreate
-from app.core.exceptions import NotFoundException, ForbiddenException
 
 logger = logging.getLogger(__name__)
 
 
-def _assert_model_ownership(db: Session, model_id: int, user_id: int) -> MLModel:
+def _assert_model_ownership(db: Session,
+                            model_id: int,
+                            user_id: int) -> MLModel:
     """
     Verify the model exists and belongs to the user.
     Returns the model if valid, raises otherwise.
@@ -174,8 +177,11 @@ def get_alert_stats(
     )
     unresolved_alerts: int = int(
         db.query(func.count(Alert.id))
-        .filter(Alert.ml_model_id == model_id, Alert.is_resolved == False)  # noqa: E712
-        .scalar() or 0
+        .filter(
+            Alert.ml_model_id == model_id, not Alert.is_resolved
+        )
+        .scalar()
+        or 0
     )
 
     # Breakdown by severity

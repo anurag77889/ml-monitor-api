@@ -1,14 +1,31 @@
 from datetime import datetime
-from sqlalchemy import String, Integer, Float, DateTime, ForeignKey, Text
+from typing import TYPE_CHECKING
+
+from sqlalchemy import (
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.database import Base
+
+if TYPE_CHECKING:
+    from .alert import Alert
+    from .prediction import Prediction
+    from .user import User
 
 
 class MLModel(Base):
     __tablename__ = "ml_models"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(
+        String(200), nullable=False, index=True
+    )
     version: Mapped[str] = mapped_column(String(50), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
 
@@ -21,7 +38,8 @@ class MLModel(Base):
     # Drift threshold — alert when drift score exceeds this
     drift_threshold: Mapped[float] = mapped_column(Float, default=0.05)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime,
+                                                 default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )

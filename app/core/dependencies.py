@@ -1,9 +1,10 @@
 from fastapi import Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
-from app.database import get_db
-from app.core.security import decode_access_token
+
 from app.core.exceptions import CredentialsException, InactiveUserException
+from app.core.security import decode_access_token
+from app.database import get_db
 from app.models.user import User
 
 # Extracts Bearer token from the Authorization header

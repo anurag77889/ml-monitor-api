@@ -1,10 +1,12 @@
 from datetime import datetime
+
+from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_
-from app.models.prediction import Prediction
+
+from app.core.exceptions import ForbiddenException, NotFoundException
 from app.models.ml_model import MLModel
+from app.models.prediction import Prediction
 from app.schemas.prediction import PredictionCreate, PredictionUpdate
-from app.core.exceptions import NotFoundException, ForbiddenException
 from app.services.model_service import get_model_by_id
 
 
@@ -142,7 +144,9 @@ def label_prediction(
     This is a PATCH — only actual_output is updated.
     Used after real-world outcomes are known.
     """
-    prediction = get_prediction_by_id(db, model_id, prediction_id, current_user_id)
+    prediction = get_prediction_by_id(
+        db, model_id, prediction_id, current_user_id
+    )
     prediction.actual_output = payload.actual_output
     db.commit()
     db.refresh(prediction)

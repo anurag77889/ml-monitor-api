@@ -1,11 +1,13 @@
 import logging
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.config import settings
 from app.database import Base, engine
-from app.models import User, MLModel, Prediction, Alert  # noqa: F401
-from app.routers import auth, models, predictions, alerts
+from app.models import Alert, MLModel, Prediction, User  # noqa: F401
+from app.routers import alerts, auth, models, predictions
 
 logging.basicConfig(
     level=logging.INFO if not settings.DEBUG else logging.DEBUG,
@@ -31,7 +33,8 @@ def get_application() -> FastAPI:
     application = FastAPI(
         title=settings.APP_NAME,
         debug=settings.DEBUG,
-        docs_url="/docs" if settings.DEBUG else None,   # hide docs in production
+        docs_url="/docs" if settings.DEBUG else None,
+        # hide docs in production
         redoc_url="/redoc" if settings.DEBUG else None,
         lifespan=lifespan,
     )

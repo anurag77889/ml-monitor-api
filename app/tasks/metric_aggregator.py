@@ -1,9 +1,11 @@
 import logging
 from datetime import datetime, timedelta
-from sqlalchemy.orm import Session
+
 from sqlalchemy import func
-from app.models.prediction import Prediction
+from sqlalchemy.orm import Session
+
 from app.models.alert import Alert
+from app.models.prediction import Prediction
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +133,6 @@ def run_metric_aggregation(
             Prediction.drift_score > 0.05,
         ).scalar() or 0
 
-
         drift_rate = round(drifted / stats.total, 4) if stats.total else 0.0
 
         metrics = {
@@ -146,7 +147,9 @@ def run_metric_aggregation(
             "drift_rate": drift_rate,
         }
 
-        logger.info(f"[MetricAggregator] model_id={model_id} metrics={metrics}")
+        logger.info(
+            f"[MetricAggregator] model_id={model_id} metrics={metrics}"
+        )
 
         # Check alert conditions
         if stats.avg_confidence and stats.avg_confidence < 0.6:
@@ -158,6 +161,8 @@ def run_metric_aggregation(
         return metrics
 
     except Exception as e:
-        logger.error(f"[MetricAggregator] Failed for model_id={model_id}: {e}")
+        logger.error(
+            f"[MetricAggregator] Failed for model_id={model_id}: {e}"
+        )
         db.rollback()
         return {}

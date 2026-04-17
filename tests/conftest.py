@@ -1,14 +1,14 @@
+import os
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.main import get_application
-from app.database import Base, get_db
 
-# Separate in-memory SQLite DB for tests
-# In-memory means it vanishes after each test — no cleanup needed
+# File-based test DB — consistent across all connections
 TEST_DATABASE_URL = "sqlite:///./test_ml_monitor.db"
 
+# Create engine ONCE — shared across everything
 engine = create_engine(
     TEST_DATABASE_URL,
     connect_args={"check_same_thread": False},
@@ -21,10 +21,7 @@ TestingSessionLocal = sessionmaker(
 
 
 def override_get_db():
-    """
-    Replaces the real get_db dependency with test DB session.
-    FastAPI dependency injection makes this seamless.
-    """
+    """Injects test DB session into every route."""
     db = TestingSessionLocal()
     try:
         yield db
@@ -35,32 +32,57 @@ def override_get_db():
 @pytest.fixture(scope="function", autouse=True)
 def setup_database():
     """
-    Runs before every test function.
-    Creates all tables fresh, yields, then drops everything.
-    Guarantees zero state leakage between tests.
+    Runs before every test.
+    Creates all tables on the SAME engine the app will use.
+    Drops everything after — zero state leakage.
     """
+    # Import Base and all models so metadata knows about all tables
+    from app.database import Base
+    from app.models import Alert, MLModel, Prediction, User  # noqa: F401
+
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(scope="function")
-def client():
+def client(setup_database):
     """
-    Provides a TestClient with the test DB injected.
-    Use this in every test that makes HTTP requests.
+    Provides TestClient with test DB injected.
+    Overrides both the DB dependency AND the engine
+    used by the lifespan startup.
     """
+    # Must set env vars before app is imported/created
+    os.environ["DATABASE_URL"] = TEST_DATABASE_URL
+    os.environ["SECRET_KEY"] = "testsecretkey123fortest"
+    os.environ["DEBUG"] = "True"
+
+    from app.database import get_db
+    from app.main import get_application
+
     app = get_application()
+
+    # Override get_db so all routes use test DB session
     app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as c:
+
+    # CRITICAL: Also patch the engine used by lifespan
+    # so create_all() in main.py uses the test engine too
+    import app.database as db_module
+    original_engine = db_module.engine
+    db_module.engine = engine  # 👈 point app at test engine
+
+    with TestClient(app, raise_server_exceptions=True) as c:
         yield c
 
+    # Restore original engine after test
+    db_module.engine = original_engine
+    app.dependency_overrides.clear()
 
-# ── Reusable helper fixtures ──────────────────────────────────────────────────
+
+# ── Reusable fixtures ─────────────────────────────────────────────────────────
 
 @pytest.fixture
 def registered_user(client: TestClient) -> dict:
-    """Register a user and return the response body."""
     response = client.post("/auth/register", json={
         "email": "test@example.com",
         "username": "testuser",
@@ -72,10 +94,6 @@ def registered_user(client: TestClient) -> dict:
 
 @pytest.fixture
 def auth_headers(client: TestClient, registered_user: dict) -> dict:
-    """
-    Log in and return Authorization headers.
-    Inject this into any test that needs an authenticated request.
-    """
     response = client.post("/auth/login", json={
         "email": "test@example.com",
         "password": "testpassword123",
@@ -87,7 +105,6 @@ def auth_headers(client: TestClient, registered_user: dict) -> dict:
 
 @pytest.fixture
 def registered_model(client: TestClient, auth_headers: dict) -> dict:
-    """Register an ML model and return the response body."""
     response = client.post("/models/", json={
         "name": "Test Churn Model",
         "version": "1.0.0",
@@ -105,7 +122,6 @@ def logged_prediction(
     auth_headers: dict,
     registered_model: dict,
 ) -> dict:
-    """Log a prediction and return the response body."""
     model_id = registered_model["id"]
     response = client.post(f"/models/{model_id}/predictions/", json={
         "input_data": {"age": 34, "tenure_months": 12},

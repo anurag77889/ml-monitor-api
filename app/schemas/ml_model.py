@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -7,7 +8,9 @@ class MLModelCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     version: str = Field(..., max_length=50)
     description: Optional[str] = None
-    model_type: str = Field(..., description="e.g. classification, regression, nlp")
+    model_type: str = Field(
+        ..., description="e.g. classification, regression, nlp"
+    )
     drift_threshold: float = Field(default=0.05, ge=0.0, le=1.0)
 
 
@@ -15,7 +18,9 @@ class MLModelUpdate(BaseModel):
     name: Optional[str] = Field(None, max_length=200)
     version: Optional[str] = Field(None, max_length=50)
     description: Optional[str] = None
-    status: Optional[str] = Field(None, pattern="^(production|staging|retired)$")
+    status: Optional[str] = Field(
+        None, pattern="^(production|staging|retired)$"
+    )
     drift_threshold: Optional[float] = Field(None, ge=0.0, le=1.0)
 
 

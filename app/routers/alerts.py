@@ -1,23 +1,17 @@
 from datetime import datetime
 from typing import Optional
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
+
+from app.core.dependencies import get_current_user
 from app.database import get_db
 from app.models.user import User
-from app.core.dependencies import get_current_user
-from app.schemas.alert import (
-    AlertListResponse,
-    AlertResponse,
-    AlertStats,
-    BulkResolveResponse,
-)
-from app.services.alert_service import (
-    get_alerts,
-    get_alert_by_id,
-    resolve_alert,
-    resolve_all_alerts,
-    get_alert_stats,
-)
+from app.schemas.alert import (AlertListResponse, AlertResponse, AlertStats,
+                               BulkResolveResponse)
+from app.services.alert_service import (get_alert_by_id, get_alert_stats,
+                                        get_alerts, resolve_alert,
+                                        resolve_all_alerts)
 
 router = APIRouter(
     prefix="/models/{model_id}/alerts",

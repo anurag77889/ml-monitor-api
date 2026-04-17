@@ -1,13 +1,16 @@
-from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.orm import Session
+
+from app.core.exceptions import ForbiddenException, NotFoundException
+from app.models.alert import Alert
 from app.models.ml_model import MLModel
 from app.models.prediction import Prediction
-from app.models.alert import Alert
 from app.schemas.ml_model import MLModelCreate, MLModelUpdate
-from app.core.exceptions import NotFoundException, ForbiddenException
 
 
-def create_model(db: Session, payload: MLModelCreate, owner_id: int) -> MLModel:
+def create_model(
+    db: Session, payload: MLModelCreate, owner_id: int
+) -> MLModel:
     """Register a new ML model under the authenticated user."""
     model = MLModel(**payload.model_dump(), owner_id=owner_id)
     db.add(model)
@@ -45,7 +48,12 @@ def get_models_by_owner(
         query = query.filter(MLModel.model_type == model_type)
 
     total = query.count()
-    models = query.order_by(MLModel.created_at.desc()).offset(skip).limit(limit).all()
+    models = (
+        query.order_by(MLModel.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     return models, total
 
 
@@ -89,7 +97,9 @@ def delete_model(db: Session, model_id: int, current_user_id: int) -> None:
     db.commit()
 
 
-def get_model_summary(db: Session, model_id: int, current_user_id: int) -> dict:
+def get_model_summary(
+    db: Session, model_id: int, current_user_id: int
+) -> dict:
     """
     Returns a stats summary for a model:
     total predictions, avg confidence, avg latency,
@@ -109,7 +119,7 @@ def get_model_summary(db: Session, model_id: int, current_user_id: int) -> dict:
 
     unresolved_alerts = db.query(func.count(Alert.id)).filter(
         Alert.ml_model_id == model_id,
-        Alert.is_resolved == False  # noqa: E712
+        Alert.is_resolved == False,  # noqa: E712
     ).scalar()
 
     latest_prediction = (
