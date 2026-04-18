@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -24,6 +24,7 @@ def _assert_model_ownership(db: Session,
     if model.owner_id != user_id:
         raise ForbiddenException
     return model
+
 
 
 def get_alerts(
@@ -112,7 +113,7 @@ def resolve_alert(
         return alert
 
     alert.is_resolved = True
-    alert.resolved_at = datetime.utcnow()
+    alert.resolved_at = datetime.now(UTC)
     db.commit()
     db.refresh(alert)
 
@@ -135,7 +136,7 @@ def resolve_all_alerts(
     """
     _assert_model_ownership(db, model_id, current_user_id)
 
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     updated = db.query(Alert).filter(
         Alert.ml_model_id == model_id,
         Alert.is_resolved == False,  # noqa: E712
