@@ -27,3 +27,6 @@ jobs:
 
       - name: Run Tests
         run: pytest
+        env:
+          SECRET_KEY: testsecretkey
+          DATABASE_URL: sqlite:///./test.db
