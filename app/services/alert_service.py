@@ -178,7 +178,8 @@ def get_alert_stats(
     unresolved_alerts: int = int(
         db.query(func.count(Alert.id))
         .filter(
-            Alert.ml_model_id == model_id, not Alert.is_resolved
+            Alert.ml_model_id == model_id,
+            Alert.is_resolved == False,  # noqa: E712
         )
         .scalar()
         or 0
