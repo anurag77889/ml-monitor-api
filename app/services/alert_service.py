@@ -26,7 +26,6 @@ def _assert_model_ownership(db: Session,
     return model
 
 
-
 def get_alerts(
     db: Session,
     model_id: int,
