@@ -22,7 +22,8 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info(f"Starting {settings.APP_NAME}")
     logger.info(f"DEBUG={settings.DEBUG}")
-    Base.metadata.create_all(bind=engine)
+    if settings.DEBUG:
+        Base.metadata.create_all(bind=engine)
     logger.info("Database tables verified")
     yield
     # Shutdown
