@@ -11,12 +11,18 @@ __pycache__/
 dist/
 build/
 
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+data/
+
 # Virtual environment
 .venv/
 venv/
 
 # Coverage
-.coverage 
+.coverage
 htmlcov/
 
 # IDE
