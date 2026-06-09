@@ -31,4 +31,4 @@ htmlcov/
 # IDE
 .vscode/
 .idea/
-*.swp
+*.swpnode_modules/

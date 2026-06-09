@@ -15,6 +15,9 @@ ENV PYTHONUNBUFFERED=1
 # Copy only requirements first — Docker layer caching means
 # this layer is only rebuilt when requirements.txt changes,
 # not on every code change. Big time saver.
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+USER appuser
+
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade pip \
