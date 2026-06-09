@@ -9,6 +9,8 @@ from app.schemas.token import TokenResponse
 from app.schemas.user import UserCreate, UserLogin, UserResponse
 from app.services.auth_service import authenticate_user, create_user
 
+from app.main import limiter
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
@@ -20,6 +22,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenResponse)
+@limiter.limit("5/minute")
 def login(payload: UserLogin, db: Session = Depends(get_db)):
     """Login and receive a JWT access token."""
     user = authenticate_user(db, payload.email, payload.password)

@@ -9,6 +9,11 @@ from app.database import Base, engine
 from app.models import Alert, MLModel, Prediction, User  # noqa: F401
 from app.routers import alerts, auth, models, predictions
 
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+
 logging.basicConfig(
     level=logging.INFO if not settings.DEBUG else logging.DEBUG,
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
@@ -64,6 +69,10 @@ def get_application() -> FastAPI:
 
 
 app = get_application()
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 
 @app.get("/", tags=["Health"])
