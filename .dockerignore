@@ -1,10 +1,51 @@
+# Git
 .git
+.gitignore
+
+# Environment Files (never bake secrets into an image)
 .env
+.env.*
+
+# Database files
 *.db
 *.sqlite
-node_modules
-tests
-__pycache__
+
+# Node
+node_modules/
+package.json
+package-lock.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Test and dev tooling
+tests/
 .pytest_cache
+.coverage
+coverage.xml
+htmlcov/
+
+# Linting / formatting config
 .flake8
+pyproject.toml
+
+# Docs
+README.md
 *.md
+
+# IDE
+.vscode/
+.idea/
+
+# CI
+.github/
+
+# Other deployment configs (only keep what the running app needs)
+fly.toml
+railway.toml
+render.yaml
