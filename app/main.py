@@ -9,9 +9,9 @@ from app.database import Base, engine
 from app.models import Alert, MLModel, Prediction, User  # noqa: F401
 from app.routers import alerts, auth, models, predictions
 
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from app.config.limiter import limiter
 from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
 
 
 logging.basicConfig(
@@ -70,11 +70,6 @@ def get_application() -> FastAPI:
 
 app = get_application()
 
-default_limits = [] if settings.testing else ["100/minute"]
-# Create limiter instance - keyed by the caller's IP address
-limiter = Limiter(key_func=get_remote_address, default_limits=default_limits)
-
-# Attach to app
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 

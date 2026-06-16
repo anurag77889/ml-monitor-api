@@ -9,7 +9,7 @@ from app.schemas.token import TokenResponse
 from app.schemas.user import UserCreate, UserLogin, UserResponse
 from app.services.auth_service import authenticate_user, create_user
 
-from app.main import limiter
+from app.config.limiter import limiter
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
