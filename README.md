@@ -1,29 +1,41 @@
 # ML Monitor API
 
-ML Model monitoring system built on top of FastAPI for your machine learning models, tracking predictions, performance metrics, and data drift.
+Monitor. Detect. Alert.
+
+Production-grade backend service for monitoring deployed ML models, detecting prediction drift, and generating timely alerts before model performance degrades in production.
+
+---
+
+## Why ML Monitor API?
 
 ## Features
 
-- User authentication and authorization
-- ML model registration and management
-- Prediction logging and monitoring
-- Accurate performance metrics tracking
-- Instant data drift detection
-- Fast alert system
+## System Architecture
 
-## Setup
+## Tech Stack
 
-1. Clone the repository
-2. Create a virtual environment: `python -m venv venv`
-3. Activate the environment: `venv\Scripts\activate` (Windows)
-4. Install dependencies: `pip install -r requirements.txt`
-5. Copy `.env.example` to `.env` and fill in your values
-6. Run the application: `uvicorn app.main:app --reload`
+## Project Structure
+
+## Getting Started
+
+## Environment Variables
+
+## Running with Docker
 
 ## API Documentation
 
-Once running, visit `http://localhost:8000/docs` for interactive API documentation.
+## Authentication
 
-## Testing
+## Database Schema
 
-Run tests with: `pytest`
+## ML Monitoring Workflow
+
+## Screenshots
+
+## Roadmap
+
+## Future Improvements
+
+## Contributing
+
+## License
